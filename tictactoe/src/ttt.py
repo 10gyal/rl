@@ -15,7 +15,7 @@ class Board:
     def reset(self):
         self.board = [None] * 9
         self.current_player = 0
-        return self.board
+        return self.state
 
     def is_valid_move(self, pos):
         if pos < 0 or pos > 8 or self.board[pos] is not None:
@@ -47,7 +47,7 @@ class Board:
 
         self.current_player = 0 if self.current_player == 1 else 1
 
-        return self.board, reward, done, {"winner": winner}
+        return self.state, reward, done, {"winner": winner}
 
     def check_winner(self):
         # check rows
@@ -83,48 +83,17 @@ class Board:
     def is_draw(self):
         return all(i is not None for i in self.board)
 
+    def step(self, action):
+        return self.make_move(action)
 
-# test
-b = Board()
-print(b)
+    @property
+    def action_space(self):
+        return 9
 
-s, r, d, i = b.make_move(0)
-print(b)
-print(f"Reward: {r}, Done: {d}, Winner: {i}")
+    @property
+    def observation_space(self):
+        return 9
 
-
-s, r, d, i = b.make_move(1)
-print(b)
-print(f"Reward: {r}, Done: {d}, Winner: {i}")
-
-
-s, r, d, i = b.make_move(2)
-print(b)
-print(f"Reward: {r}, Done: {d}, Winner: {i}")
-
-s, r, d, i = b.make_move(3)
-print(b)
-print(f"Reward: {r}, Done: {d}, Winner: {i}")
-
-s, r, d, i = b.make_move(4)
-print(b)
-print(f"Reward: {r}, Done: {d}, Winner: {i}")
-
-s, r, d, i = b.make_move(6)
-print(b)
-print(f"Reward: {r}, Done: {d}, Winner: {i}")
-
-s, r, d, i = b.make_move(5)
-print(b)
-print(f"Reward: {r}, Done: {d}, Winner: {i}")
-
-s, r, d, i = b.make_move(8)
-print(b)
-print(f"Reward: {r}, Done: {d}, Winner: {i}")
-
-s, r, d, i = b.make_move(7)
-print(b)
-print(f"Reward: {r}, Done: {d}, Winner: {i}")
-
-
-print("winner: ", b.check_winner())
+    @property
+    def state(self):
+        return (tuple(self.board), self.current_player)
