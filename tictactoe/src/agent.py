@@ -7,10 +7,10 @@ env = Board()
 
 Q = {}
 gamma = 1
-alpha = 0.00001
+alpha = 0.005  # lr
 epsilon_start = 1
-epsilon_end = 0.0001
-epsilon_decay_rate = 0.9999999
+epsilon_end = 0.1
+epsilon_decay_rate = 0.995
 
 
 def get_action(state, epsilon, valid_actions):
@@ -35,6 +35,10 @@ def update_Q(state, action, reward, next_state, done, valid_actions):
 def train(num_episodes):
     epsilon = epsilon_start
     for episode in range(num_episodes):
+        if episode % 100 == 0:
+            print("=" * 100)
+            print(f"Episode {episode}")
+            print(f"Epsilon = {epsilon}")
         state = env.reset()
         done = False
 
@@ -54,7 +58,7 @@ def train(num_episodes):
     return Q
 
 
-Q = train(100000)
+Q = train(10000)
 
 import json
 
@@ -68,13 +72,19 @@ def play_game():
     """Human plays as X (player 0), Agent plays as O (player 1)"""
     env.reset()
     done = False
-
     while not done:
         print(env)  # Show board
+        print("=" * 100)
         valid_moves = env.get_valid_moves()
 
         if env.current_player == 0:  # Human's turn
-            action = int(input("Your move (0-8): "))
+            while True:
+                action = int(input("Your move (0-8): "))
+                if action not in valid_moves:
+                    print("Invalid move, try again!")
+                else:
+                    break
+
         else:  # Agent's turn
             action = max(valid_moves, key=lambda a: Q.get((state, a), 0.0))
 
@@ -82,10 +92,15 @@ def play_game():
 
         if done:
             print(env)
+            print("=" * 100)
 
-    # TODO: Show result
-    print("=" * 100)
-    print(f"Final status: {info}")
+        print("=" * 100)
+        print(f"{info}")
 
 
-play_game()
+while True:
+    play_game()
+    keep_playing = input("Keep playing? (yes/no): ").strip().lower()
+    if keep_playing not in ("yes", "y"):
+        print("Thanks for playing!")
+        break

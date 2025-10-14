@@ -5,12 +5,12 @@ class Board:
         self.current_player = 0
 
     def __repr__(self) -> str:
-        board_str = ""
+        symbols = {None: " ", 0: "X", 1: "O"}
+        rows = []
         for i in range(0, 9, 3):
-            board_str += str(self.board[i : i + 3])
-            board_str += "\n"
-
-        return board_str
+            row = [symbols[self.board[j]] for j in range(i, i + 3)]
+            rows.append(" | ".join(row))
+        return "\n---------\n".join(rows)
 
     def reset(self):
         self.board = [None] * 9
@@ -35,6 +35,7 @@ class Board:
         # check game state
         winner = self.check_winner()
         done = winner is not None or self.is_draw()
+        player_str = "X" if self.current_player == 0 else "O"
 
         # calculate reward
         reward = 0
@@ -47,7 +48,23 @@ class Board:
 
         self.current_player = 0 if self.current_player == 1 else 1
 
-        return self.state, reward, done, {"winner": winner}
+        info = None
+        if winner is None:
+            if done:
+                info = "It's a DRAW!"
+            else:
+                # map 0 to X and 1 to O for info
+                info = f"Next turn: {player_str}"
+        else:
+            # map 0 to X and 1 to O for info
+            info = f"{player_str} WON!"
+
+        return (
+            self.state,
+            reward,
+            done,
+            info,
+        )
 
     def check_winner(self):
         # check rows
