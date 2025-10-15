@@ -39,7 +39,7 @@ class FrozenLake:
 
         self.position = new_position
 
-        return new_position, reward, done
+        return self.state, reward, done
 
     def _get_actual_action(self, action):
         if not self.slippery:
@@ -70,3 +70,7 @@ class FrozenLake:
             row = max(0, row - 1)
 
         return (row, col)
+
+    @property
+    def state(self):
+        return self.position
