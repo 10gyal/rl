@@ -10,7 +10,7 @@ gamma = 1
 alpha = 0.005  # lr
 epsilon_start = 1
 epsilon_end = 0.1
-epsilon_decay_rate = 0.995
+epsilon_decay_rate = 0.99995
 
 
 def get_action(state, epsilon, valid_actions):
@@ -58,26 +58,25 @@ def train(num_episodes):
     return Q
 
 
-Q = train(10000)
-
-import json
-
-with open("q_table.json", "w") as f:
-    # Convert tuple keys to string for JSON serialization
-    serializable_Q = {f"{k[0]}_{k[1]}": v for k, v in Q.items()}
-    json.dump(serializable_Q, f)
+Q = train(100000)
 
 
 def play_game():
     """Human plays as X (player 0), Agent plays as O (player 1)"""
     env.reset()
     done = False
+    state = env.state
+    human_player = input("Would you like to play as X or O? ").strip().lower()
+    if human_player == "x":
+        human_player = 0
+    else:
+        human_player = 1
     while not done:
         print(env)  # Show board
         print("=" * 100)
         valid_moves = env.get_valid_moves()
 
-        if env.current_player == 0:  # Human's turn
+        if env.current_player == human_player:  # Human's turn
             while True:
                 action = int(input("Your move (0-8): "))
                 if action not in valid_moves:
@@ -95,7 +94,13 @@ def play_game():
             print("=" * 100)
 
         print("=" * 100)
-        print(f"{info}")
+        if reward:
+            if env.current_player != human_player:
+                print(f"You won!")
+            else:
+                print(f"You lost!")
+        else:
+            print(f"{info}")
 
 
 while True:
